@@ -1,12 +1,21 @@
-abstract class WindowState {}
+abstract class WindowState {
+  final bool isVisible;
+
+  const WindowState({this.isVisible = false});
+}
 
 class InitialWindowState extends WindowState {}
 
-class WindowOpenedState extends WindowState {}
-
 class WindowAnimationState extends WindowState {
   final double progress;
-  WindowAnimationState(this.progress);
+
+  const WindowAnimationState(this.progress, {required super.isVisible});
 }
 
-class WindowClosedState extends WindowState {}
+class WindowOpenedState extends WindowState {
+  WindowOpenedState() : super(isVisible: true);
+}
+
+class WindowClosedState extends WindowState {
+  WindowClosedState() : super(isVisible: false);
+}

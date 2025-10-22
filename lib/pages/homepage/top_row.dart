@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class TopRow extends StatelessWidget {
   const TopRow({super.key});
@@ -26,7 +27,7 @@ class TopRow extends StatelessWidget {
           ),
         ),
         SizedBox(width: 32),
-      ],
+      ].animate(interval: Durations.short1).fadeIn(duration: Durations.short4),
     );
   }
 }

@@ -16,7 +16,7 @@ class WindowBloc extends Bloc<WindowEvent, WindowState> {
   WindowBloc(TickerProvider vsync) : super(InitialWindowState()) {
     _controller = AnimationController(
       vsync: vsync,
-      duration: const Duration(milliseconds: 50),
+      duration: const Duration(milliseconds: 200),
     );
 
     _controller.addListener(() async {
@@ -24,16 +24,33 @@ class WindowBloc extends Bloc<WindowEvent, WindowState> {
       add(WindowAnimationUpdateEvent(_controller.value));
     });
 
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        add(WindowOpenCompletedEvent());
+      } else if (status == AnimationStatus.dismissed) {
+        add(WindowCloseCompletedEvent());
+      }
+    });
+
     _registerHotKey();
 
     on<WindowAnimationUpdateEvent>((event, emit) {
-      emit(WindowAnimationState(event.progress));
+      emit(WindowAnimationState(event.progress, isVisible: _isWindowVisible));
     });
-    on<OpenWindowEvent>((event, emit) {
-      // Handle open window event
+    on<OpenWindowEvent>((event, emit) async {
+      await _controller.reverse();
+      await windowManager.hide();
     });
-    on<CloseWindowEvent>((event, emit) {
-      // Handle close window event
+    on<CloseWindowEvent>((event, emit) async {
+      await windowManager.show();
+      await windowManager.focus();
+      await _controller.forward();
+    });
+    on<WindowOpenCompletedEvent>((event, emit) {
+      emit(WindowOpenedState());
+    });
+    on<WindowCloseCompletedEvent>((event, emit) {
+      emit(WindowClosedState());
     });
     on<NormalizeWindowEvent>((event, emit) {
       // Handle normalize window event
@@ -49,18 +66,16 @@ class WindowBloc extends Bloc<WindowEvent, WindowState> {
       modifiers: [HotKeyModifier.control, HotKeyModifier.shift],
     );
 
-    await hotKeyManager.register(hotKey, keyDownHandler: (_) => toggleWindow());
-  }
-
-  Future<void> toggleWindow() async {
-    if (_isWindowVisible) {
-      await _controller.reverse();
-      await windowManager.hide();
-    } else {
-      await windowManager.show();
-      await windowManager.focus();
-      await _controller.forward();
-    }
-    _isWindowVisible = !_isWindowVisible;
+    await hotKeyManager.register(
+      hotKey,
+      keyDownHandler: (_) {
+        if (_isWindowVisible) {
+          add(OpenWindowEvent());
+        } else {
+          add(CloseWindowEvent());
+        }
+        _isWindowVisible = !_isWindowVisible;
+      },
+    );
   }
 }
