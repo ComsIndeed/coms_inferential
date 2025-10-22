@@ -1,4 +1,5 @@
 import 'package:coms_inferential/pages/homepage/input_container.dart';
+import 'package:coms_inferential/pages/homepage/top_row.dart';
 import 'package:coms_inferential/providers/window_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,17 @@ class Homepage extends StatelessWidget {
         return AnimatedOpacity(
           opacity: clampDouble(window.animation.value * 10, 0, 1),
           duration: Duration.zero,
-          child: const Scaffold(body: Center(child: InputContainer())),
+          child: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 700,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [TopRow(), InputContainer()],
+                ),
+              ),
+            ),
+          ),
         );
       },
     );
