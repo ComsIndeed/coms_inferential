@@ -1,4 +1,5 @@
 import 'package:coms_inferential/blocs/window_bloc/window_bloc.dart';
+import 'package:coms_inferential/blocs/window_bloc/window_event.dart';
 import 'package:coms_inferential/blocs/window_bloc/window_state.dart';
 import 'package:coms_inferential/pages/homepage/input_container.dart';
 import 'package:coms_inferential/pages/homepage/top_row.dart';
@@ -15,7 +16,7 @@ class Homepage extends StatelessWidget {
     return BlocBuilder<WindowBloc, WindowState>(
       builder: (context, state) {
         final opacity = state is WindowAnimationState
-            ? clampDouble(state.progress * 100, 0, 1)
+            ? clampDouble(state.progress * 10, 0, 1)
             : state.isVisible
             ? 1.0
             : 0.0;
@@ -23,23 +24,36 @@ class Homepage extends StatelessWidget {
           opacity: opacity,
           duration: Duration.zero,
           child: Scaffold(
-            body: Center(
-              child: SizedBox(
-                width: 700,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (state.isVisible) TopRow(),
-                    if (state.isVisible)
-                      InputContainer(
-                        isVisible: state.isVisible,
-                      ).animate().fadeIn().slideY(
-                        begin: 0.375,
-                        end: 0,
-                        duration: 300.ms,
-                        curve: Curves.easeInOutCubicEmphasized,
-                      ),
-                  ],
+            backgroundColor: Colors.transparent,
+            body: GestureDetector(
+              onTap: () {
+                if (state.isVisible) {
+                  context.read<WindowBloc>().add(CloseWindowEvent());
+                }
+              },
+              child: Center(
+                child: SizedBox(
+                  width: 700,
+                  child: GestureDetector(
+                    onTap: () {
+                      // Capture taps inside the container to prevent the background tap from firing.
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (state.isVisible) const TopRow(),
+                        if (state.isVisible)
+                          InputContainer(
+                            isVisible: state.isVisible,
+                          ).animate().fadeIn().slideY(
+                            begin: 0.375,
+                            end: 0,
+                            duration: 300.ms,
+                            curve: Curves.easeInOutCubicEmphasized,
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

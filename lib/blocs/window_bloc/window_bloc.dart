@@ -38,13 +38,15 @@ class WindowBloc extends Bloc<WindowEvent, WindowState> {
       emit(WindowAnimationState(event.progress, isVisible: _isWindowVisible));
     });
     on<OpenWindowEvent>((event, emit) async {
-      await _controller.reverse();
-      await windowManager.hide();
-    });
-    on<CloseWindowEvent>((event, emit) async {
+      _isWindowVisible = true;
       await windowManager.show();
       await windowManager.focus();
       await _controller.forward();
+    });
+    on<CloseWindowEvent>((event, emit) async {
+      _isWindowVisible = false;
+      await _controller.reverse();
+      await windowManager.hide();
     });
     on<WindowOpenCompletedEvent>((event, emit) {
       emit(WindowOpenedState());
@@ -70,9 +72,9 @@ class WindowBloc extends Bloc<WindowEvent, WindowState> {
       hotKey,
       keyDownHandler: (_) {
         if (_isWindowVisible) {
-          add(OpenWindowEvent());
-        } else {
           add(CloseWindowEvent());
+        } else {
+          add(OpenWindowEvent());
         }
         _isWindowVisible = !_isWindowVisible;
       },
