@@ -1,5 +1,8 @@
+import 'package:coms_inferential/blocs/settings_bloc/settings_bloc.dart';
+import 'package:coms_inferential/blocs/settings_bloc/settings_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TopRow extends StatelessWidget {
   const TopRow({super.key});
@@ -11,7 +14,7 @@ class TopRow extends StatelessWidget {
       children: [
         SizedBox(width: 32),
         Text("Coms Inferential", style: Theme.of(context).textTheme.titleLarge),
-        Spacer(),
+        const Spacer(),
         IconButton(
           onPressed: () {},
           icon: Icon(
@@ -20,13 +23,15 @@ class TopRow extends StatelessWidget {
           ),
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            context.read<SettingsBloc>().add(ShowSettings());
+          },
           icon: Icon(
             Icons.settings_outlined,
             color: Theme.of(context).colorScheme.onSurface.withAlpha(80),
           ),
         ),
-        SizedBox(width: 32),
+        const SizedBox(width: 32),
       ].animate(interval: Durations.short1).fadeIn(duration: Durations.short4),
     );
   }

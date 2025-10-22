@@ -31,7 +31,9 @@ class Homepage extends StatelessWidget {
                   children: [
                     if (state.isVisible) TopRow(),
                     if (state.isVisible)
-                      InputContainer().animate().fadeIn().slideY(
+                      InputContainer(
+                        isVisible: state.isVisible,
+                      ).animate().fadeIn().slideY(
                         begin: 0.375,
                         end: 0,
                         duration: 300.ms,

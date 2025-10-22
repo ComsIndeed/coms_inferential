@@ -1,5 +1,8 @@
+import 'package:coms_inferential/blocs/settings_bloc/settings_bloc.dart';
+import 'package:coms_inferential/blocs/settings_bloc/settings_state.dart';
 import 'package:coms_inferential/blocs/window_bloc/window_bloc.dart';
 import 'package:coms_inferential/pages/homepage/homepage.dart';
+import 'package:coms_inferential/pages/settings/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,25 +44,37 @@ class MainApp extends StatefulWidget {
   State<MainApp> createState() => _MainAppState();
 }
 
-class _MainAppState extends State<MainApp> with SingleTickerProviderStateMixin {
+class _MainAppState extends State<MainApp> with TickerProviderStateMixin {
   late final WindowBloc _windowBloc;
+  late final SettingsBloc _settingsBloc;
 
   @override
   void initState() {
     super.initState();
     _windowBloc = WindowBloc(this);
+    _settingsBloc = SettingsBloc();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _windowBloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _windowBloc),
+        BlocProvider.value(value: _settingsBloc),
+      ],
       child: MaterialApp(
         theme: ThemeData.dark().copyWith(
           colorScheme: ColorScheme.dark(),
           scaffoldBackgroundColor: Colors.transparent,
         ),
-        home: const Homepage(),
+        home: BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, state) {
+            if (state is SettingsVisible) {
+              return const SettingsPage();
+            }
+            return const Homepage();
+          },
+        ),
       ),
     );
   }
