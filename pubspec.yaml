@@ -10,7 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_acrylic: ^1.1.4
+  flutter_animate: ^4.5.2
   hotkey_manager: ^0.2.3
+  provider: ^6.1.5+1
   window_manager: ^0.5.1
 
 dev_dependencies:
