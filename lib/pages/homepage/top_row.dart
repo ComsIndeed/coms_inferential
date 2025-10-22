@@ -11,7 +11,21 @@ class TopRow extends StatelessWidget {
         SizedBox(width: 32),
         Text("Coms Inferential", style: Theme.of(context).textTheme.titleLarge),
         Spacer(),
-        IconButton(onPressed: () {}, icon: Icon(Icons.settings_outlined)),
+        IconButton(
+          onPressed: () {},
+          icon: Icon(
+            Icons.fullscreen,
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(80),
+          ),
+        ),
+        IconButton(
+          onPressed: () {},
+          icon: Icon(
+            Icons.settings_outlined,
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(80),
+          ),
+        ),
+        SizedBox(width: 32),
       ],
     );
   }

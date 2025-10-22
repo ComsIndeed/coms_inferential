@@ -27,15 +27,20 @@ class _InputContainerState extends State<InputContainer> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Ask Coms anything...',
-                hintStyle: TextStyle(color: Colors.white54),
-                border: InputBorder.none,
-              ),
+            Row(
+              children: [
+                IconButton(onPressed: () {}, icon: Icon(Icons.add)),
+                SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Ask Coms anything...',
+                      hintStyle: TextStyle(color: Colors.white54),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
