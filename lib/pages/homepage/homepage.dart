@@ -1,19 +1,22 @@
+import 'package:coms_inferential/blocs/window_bloc/window_bloc.dart';
+import 'package:coms_inferential/blocs/window_bloc/window_state.dart';
 import 'package:coms_inferential/pages/homepage/input_container.dart';
 import 'package:coms_inferential/pages/homepage/top_row.dart';
-import 'package:coms_inferential/providers/window_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<WindowProvider>(
-      builder: (context, window, child) {
+    return BlocBuilder<WindowBloc, WindowState>(
+      builder: (context, state) {
         return AnimatedOpacity(
-          opacity: clampDouble(window.animation.value * 10, 0, 1),
+          opacity: state is WindowAnimationState
+              ? clampDouble(state.progress * 10, 0, 1)
+              : 0,
           duration: Duration.zero,
           child: Scaffold(
             body: Center(

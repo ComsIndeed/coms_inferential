@@ -1,9 +1,9 @@
+import 'package:coms_inferential/blocs/window_bloc/window_bloc.dart';
 import 'package:coms_inferential/pages/homepage/homepage.dart';
-import 'package:coms_inferential/providers/window_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
-import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -31,12 +31,7 @@ void main() async {
         );
       });
 
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => WindowProvider(),
-      child: const MainApp(),
-    ),
-  );
+  runApp(const MainApp());
 }
 
 class MainApp extends StatefulWidget {
@@ -47,20 +42,25 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> with SingleTickerProviderStateMixin {
+  late final WindowBloc _windowBloc;
+
   @override
   void initState() {
     super.initState();
-    Provider.of<WindowProvider>(context, listen: false).initialize(this);
+    _windowBloc = WindowBloc(this);
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.dark().copyWith(
-        colorScheme: ColorScheme.dark(),
-        scaffoldBackgroundColor: Colors.transparent,
+    return BlocProvider.value(
+      value: _windowBloc,
+      child: MaterialApp(
+        theme: ThemeData.dark().copyWith(
+          colorScheme: ColorScheme.dark(),
+          scaffoldBackgroundColor: Colors.transparent,
+        ),
+        home: const Homepage(),
       ),
-      home: const Homepage(),
     );
   }
 }

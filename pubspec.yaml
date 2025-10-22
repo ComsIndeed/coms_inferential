@@ -18,6 +18,7 @@ dependencies:
     git:
       url: https://github.com/ComsIndeed/generative-ai-dart.git
       path: pkgs/google_generative_ai
+  flutter_bloc: ^9.1.1
 
 dev_dependencies:
   flutter_test:
