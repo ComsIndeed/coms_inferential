@@ -7,19 +7,28 @@ abstract class ChatHistoryEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadChatHistory extends ChatHistoryEvent {
-  const LoadChatHistory();
+class LoadAllChats extends ChatHistoryEvent {
+  const LoadAllChats();
 }
 
-class AddChatMessage extends ChatHistoryEvent {
-  final String message;
+class SelectChat extends ChatHistoryEvent {
+  final String chatId;
 
-  const AddChatMessage(this.message);
+  const SelectChat(this.chatId);
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [chatId];
 }
 
-class ClearChatHistory extends ChatHistoryEvent {
-  const ClearChatHistory();
+class DeleteChatEvent extends ChatHistoryEvent {
+  final String chatId;
+
+  const DeleteChatEvent(this.chatId);
+
+  @override
+  List<Object?> get props => [chatId];
+}
+
+class ClearAllChats extends ChatHistoryEvent {
+  const ClearAllChats();
 }

@@ -16,12 +16,12 @@ class ChatHistoryLoading extends ChatHistoryState {
 }
 
 class ChatHistoryLoaded extends ChatHistoryState {
-  final List<String> messages;
+  final List<ChatHistory> chats;
 
-  const ChatHistoryLoaded(this.messages);
+  const ChatHistoryLoaded(this.chats);
 
   @override
-  List<Object?> get props => [messages];
+  List<Object?> get props => [chats];
 }
 
 class ChatHistoryError extends ChatHistoryState {

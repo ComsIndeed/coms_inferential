@@ -8,12 +8,14 @@ class ChatMessage {
   final Content content;
   final MessageRole role;
   final DateTime timestamp;
+  final bool isEdited;
 
   ChatMessage({
     required this.id,
     required this.content,
     required this.role,
     required this.timestamp,
+    this.isEdited = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -22,6 +24,7 @@ class ChatMessage {
       'content': content.toJson(),
       'role': role.name,
       'timestamp': timestamp.toIso8601String(),
+      'isEdited': isEdited ? 1 : 0,
     };
   }
 
@@ -33,6 +36,7 @@ class ChatMessage {
       ),
       role: MessageRole.values.byName(map['role'] as String),
       timestamp: DateTime.parse(map['timestamp'] as String),
+      isEdited: (map['isEdited'] as int?) == 1,
     );
   }
 
@@ -40,6 +44,22 @@ class ChatMessage {
 
   factory ChatMessage.fromJson(String source) =>
       ChatMessage.fromMap(jsonDecode(source) as Map<String, dynamic>);
+
+  ChatMessage copyWith({
+    String? id,
+    Content? content,
+    MessageRole? role,
+    DateTime? timestamp,
+    bool? isEdited,
+  }) {
+    return ChatMessage(
+      id: id ?? this.id,
+      content: content ?? this.content,
+      role: role ?? this.role,
+      timestamp: timestamp ?? this.timestamp,
+      isEdited: isEdited ?? this.isEdited,
+    );
+  }
 }
 
 enum MessageRole { system, user, assistant }

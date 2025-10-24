@@ -1,9 +1,9 @@
 import 'package:coms_inferential/blocs/window_bloc/window_bloc.dart';
-import 'package:coms_inferential/blocs/window_bloc/window_event.dart';
 import 'package:coms_inferential/blocs/window_bloc/window_state.dart';
-import 'package:coms_inferential/pages/homepage/input_container.dart';
 import 'package:coms_inferential/pages/homepage/top_row.dart';
-import 'package:coms_inferential/widgets/static_background.dart';
+import 'package:coms_inferential/widgets/chat_history_sidebar.dart';
+import 'package:coms_inferential/widgets/chat_input.dart';
+import 'package:coms_inferential/widgets/chat_messages_list.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -42,24 +42,44 @@ class Homepage extends StatelessWidget {
                     ),
                   ),
                 ),
-                Center(
-                  child: SizedBox(
-                    width: 700,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (state.isVisible) const TopRow(),
-                        if (state.isVisible)
-                          InputContainer().animate().fadeIn().slideY(
-                            begin: 0.375,
-                            end: 0,
-                            duration: 300.ms,
-                            curve: Curves.easeInOutCubicEmphasized,
+                if (state.isVisible)
+                  Row(
+                    children: [
+                      const ChatHistorySidebar(),
+                      Expanded(
+                        child: Center(
+                          child: SizedBox(
+                            width: 700,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const TopRow(),
+                                Expanded(
+                                  child: const ChatMessagesList()
+                                      .animate()
+                                      .fadeIn()
+                                      .slideY(
+                                        begin: 0.2,
+                                        end: 0,
+                                        duration: 300.ms,
+                                        curve: Curves.easeInOutCubicEmphasized,
+                                      ),
+                                ),
+                                const SizedBox(height: 16),
+                                const ChatInput().animate().fadeIn().slideY(
+                                  begin: 0.375,
+                                  end: 0,
+                                  duration: 300.ms,
+                                  curve: Curves.easeInOutCubicEmphasized,
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                            ),
                           ),
-                      ],
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
               ],
             ),
           ),
