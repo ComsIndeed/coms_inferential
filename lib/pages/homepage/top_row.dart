@@ -1,5 +1,6 @@
 import 'package:coms_inferential/blocs/settings_bloc/settings_bloc.dart';
 import 'package:coms_inferential/blocs/settings_bloc/settings_event.dart';
+import 'package:coms_inferential/pages/homepage/toggle_background_visibility.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +16,7 @@ class TopRow extends StatelessWidget {
         SizedBox(width: 32),
         Text("Coms Inferential", style: Theme.of(context).textTheme.titleLarge),
         const Spacer(),
+        ToggleBackgroundVisibility(),
         IconButton(
           onPressed: () {},
           icon: Icon(

@@ -3,6 +3,7 @@ import 'package:coms_inferential/blocs/window_bloc/window_event.dart';
 import 'package:coms_inferential/blocs/window_bloc/window_state.dart';
 import 'package:coms_inferential/pages/homepage/input_container.dart';
 import 'package:coms_inferential/pages/homepage/top_row.dart';
+import 'package:coms_inferential/widgets/static_background.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -25,27 +26,31 @@ class Homepage extends StatelessWidget {
           duration: Duration.zero,
           child: Scaffold(
             backgroundColor: Colors.transparent,
-            body: GestureDetector(
-              onTap: () {
-                if (state.isVisible) {
-                  context.read<WindowBloc>().add(CloseWindowEvent());
-                }
-              },
-              child: Center(
-                child: SizedBox(
-                  width: 700,
-                  child: GestureDetector(
-                    onTap: () {
-                      // Capture taps inside the container to prevent the background tap from firing.
-                    },
+            body: Stack(
+              children: [
+                AnimatedOpacity(
+                  opacity: state.showStatic ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 100),
+                  child: IgnorePointer(
+                    ignoring: !state.showStatic,
+                    child: SizedBox.expand(
+                      child: Container(
+                        color: HSLColor.fromColor(
+                          Theme.of(context).colorScheme.surface,
+                        ).withLightness(0.4).toColor(),
+                      ),
+                    ),
+                  ),
+                ),
+                Center(
+                  child: SizedBox(
+                    width: 700,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (state.isVisible) const TopRow(),
                         if (state.isVisible)
-                          InputContainer(
-                            isVisible: state.isVisible,
-                          ).animate().fadeIn().slideY(
+                          InputContainer().animate().fadeIn().slideY(
                             begin: 0.375,
                             end: 0,
                             duration: 300.ms,
@@ -55,7 +60,7 @@ class Homepage extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
         );

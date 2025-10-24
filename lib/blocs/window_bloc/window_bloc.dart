@@ -4,14 +4,18 @@ import 'package:coms_inferential/blocs/window_bloc/window_event.dart';
 import 'package:coms_inferential/blocs/window_bloc/window_state.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:flutter/material.dart';
 
 class WindowBloc extends Bloc<WindowEvent, WindowState> {
   late final AnimationController _controller;
   Animation<double> get animation => _controller.view;
   bool _isWindowVisible = false;
+  WindowEffect _currentEffect = WindowEffect.acrylic;
+  WindowEffect get currentEffect => _currentEffect;
 
   WindowBloc(TickerProvider vsync) : super(InitialWindowState()) {
     _controller = AnimationController(
@@ -24,42 +28,52 @@ class WindowBloc extends Bloc<WindowEvent, WindowState> {
       add(WindowAnimationUpdateEvent(_controller.value));
     });
 
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        add(WindowOpenCompletedEvent());
-      } else if (status == AnimationStatus.dismissed) {
-        add(WindowCloseCompletedEvent());
-      }
-    });
-
-    _registerHotKey();
-
-    on<WindowAnimationUpdateEvent>((event, emit) {
-      emit(WindowAnimationState(event.progress, isVisible: _isWindowVisible));
-    });
     on<OpenWindowEvent>((event, emit) async {
       _isWindowVisible = true;
       await windowManager.show();
       await windowManager.focus();
       await _controller.forward();
+      emit(WindowOpenedState());
     });
+
     on<CloseWindowEvent>((event, emit) async {
       _isWindowVisible = false;
       await _controller.reverse();
       await windowManager.hide();
-    });
-    on<WindowOpenCompletedEvent>((event, emit) {
-      emit(WindowOpenedState());
-    });
-    on<WindowCloseCompletedEvent>((event, emit) {
       emit(WindowClosedState());
     });
-    on<NormalizeWindowEvent>((event, emit) {
-      // Handle normalize window event
+
+    on<WindowAnimationUpdateEvent>((event, emit) {
+      emit(WindowAnimationState(event.progress, isVisible: _isWindowVisible));
     });
-    on<MaximizeWindowEvent>((event, emit) {
-      // Handle maximize window event
+
+    on<WindowTransitionEvent>((event, emit) async {
+      if (event.effect == currentEffect) return;
+      final halfDuration = event.duration ~/ 2;
+
+      emit(
+        WindowAnimationState(
+          1,
+          isVisible: true,
+          showStatic: true,
+          currentEffect: _currentEffect,
+        ),
+      );
+      await Future.delayed(halfDuration);
+      await Window.setEffect(effect: event.effect, color: Colors.transparent);
+      _currentEffect = event.effect;
+      await Future.delayed(halfDuration);
+      emit(
+        WindowAnimationState(
+          1,
+          isVisible: true,
+          showStatic: false,
+          currentEffect: _currentEffect,
+        ),
+      );
     });
+
+    _registerHotKey();
   }
 
   void _registerHotKey() async {
@@ -76,7 +90,6 @@ class WindowBloc extends Bloc<WindowEvent, WindowState> {
         } else {
           add(OpenWindowEvent());
         }
-        _isWindowVisible = !_isWindowVisible;
       },
     );
   }
