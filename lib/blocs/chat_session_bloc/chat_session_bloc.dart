@@ -35,12 +35,8 @@ class ChatSessionBloc extends Bloc<ChatSessionEvent, ChatSessionState> {
     final chatId = const Uuid().v4();
     final title = 'New Chat';
 
-    try {
-      await _chatHistoryService.createNewChat(chatId, title);
-      emit(ChatSessionActive(chatId: chatId, title: title, messages: const []));
-    } catch (e) {
-      emit(ChatSessionError(e.toString(), const []));
-    }
+    // Don't save to database yet - will save on first message
+    emit(ChatSessionActive(chatId: chatId, title: title, messages: const []));
   }
 
   Future<void> _onLoadChat(
@@ -88,6 +84,15 @@ class ChatSessionBloc extends Bloc<ChatSessionEvent, ChatSessionState> {
     );
 
     try {
+      // Create chat in database if this is the first message
+      if (currentState.messages.isEmpty) {
+        await _chatHistoryService.createNewChat(
+          currentState.chatId,
+          currentState.title,
+          selectedModel: currentState.selectedModel,
+        );
+      }
+
       await _chatHistoryService.addMessage(currentState.chatId, userMessage);
 
       if (currentState.messages.isEmpty) {

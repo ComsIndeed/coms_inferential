@@ -16,6 +16,10 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
     on<SelectChat>(_onSelectChat);
     on<DeleteChatEvent>(_onDeleteChat);
     on<ClearAllChats>(_onClearAllChats);
+    on<ToggleSelectionMode>(_onToggleSelectionMode);
+    on<ToggleChatSelection>(_onToggleChatSelection);
+    on<DeleteSelectedChats>(_onDeleteSelectedChats);
+    on<ClearSelection>(_onClearSelection);
   }
 
   Future<void> _onLoadAllChats(
@@ -61,5 +65,66 @@ class ChatHistoryBloc extends Bloc<ChatHistoryEvent, ChatHistoryState> {
     } catch (e) {
       emit(ChatHistoryError(e.toString()));
     }
+  }
+
+  Future<void> _onToggleSelectionMode(
+    ToggleSelectionMode event,
+    Emitter<ChatHistoryState> emit,
+  ) async {
+    if (state is! ChatHistoryLoaded) return;
+
+    final currentState = state as ChatHistoryLoaded;
+    emit(
+      currentState.copyWith(
+        isSelectionMode: !currentState.isSelectionMode,
+        selectedChatIds: {},
+      ),
+    );
+  }
+
+  Future<void> _onToggleChatSelection(
+    ToggleChatSelection event,
+    Emitter<ChatHistoryState> emit,
+  ) async {
+    if (state is! ChatHistoryLoaded) return;
+
+    final currentState = state as ChatHistoryLoaded;
+    final newSelectedIds = Set<String>.from(currentState.selectedChatIds);
+
+    if (newSelectedIds.contains(event.chatId)) {
+      newSelectedIds.remove(event.chatId);
+    } else {
+      newSelectedIds.add(event.chatId);
+    }
+
+    emit(currentState.copyWith(selectedChatIds: newSelectedIds));
+  }
+
+  Future<void> _onDeleteSelectedChats(
+    DeleteSelectedChats event,
+    Emitter<ChatHistoryState> emit,
+  ) async {
+    if (state is! ChatHistoryLoaded) return;
+
+    final currentState = state as ChatHistoryLoaded;
+    try {
+      await _chatHistoryService.deleteMultipleChats(
+        currentState.selectedChatIds.toList(),
+      );
+      emit(currentState.copyWith(isSelectionMode: false, selectedChatIds: {}));
+      add(const LoadAllChats());
+    } catch (e) {
+      emit(ChatHistoryError(e.toString()));
+    }
+  }
+
+  Future<void> _onClearSelection(
+    ClearSelection event,
+    Emitter<ChatHistoryState> emit,
+  ) async {
+    if (state is! ChatHistoryLoaded) return;
+
+    final currentState = state as ChatHistoryLoaded;
+    emit(currentState.copyWith(isSelectionMode: false, selectedChatIds: {}));
   }
 }

@@ -19,24 +19,95 @@ class ChatHistorySidebar extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                const Text(
-                  'Chat History',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          BlocBuilder<ChatHistoryBloc, ChatHistoryState>(
+            builder: (context, state) {
+              final isSelectionMode =
+                  state is ChatHistoryLoaded && state.isSelectionMode;
+              final selectedCount = state is ChatHistoryLoaded
+                  ? state.selectedChatIds.length
+                  : 0;
+
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    if (isSelectionMode) ...[
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 20),
+                        onPressed: () {
+                          context.read<ChatHistoryBloc>().add(
+                            const ClearSelection(),
+                          );
+                        },
+                        tooltip: 'Cancel',
+                      ),
+                      Text(
+                        '$selectedCount selected',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const Spacer(),
+                      if (selectedCount > 0)
+                        IconButton(
+                          icon: const Icon(
+                            Icons.delete,
+                            size: 20,
+                            color: Colors.red,
+                          ),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (dialogContext) => AlertDialog(
+                                title: const Text('Delete Chats'),
+                                content: Text(
+                                  'Are you sure you want to delete $selectedCount chat(s)?',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(dialogContext).pop(),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      context.read<ChatHistoryBloc>().add(
+                                        const DeleteSelectedChats(),
+                                      );
+                                      Navigator.of(dialogContext).pop();
+                                    },
+                                    child: const Text(
+                                      'Delete',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          tooltip: 'Delete Selected',
+                        ),
+                    ] else ...[
+                      const Text(
+                        'Chat History',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.add, size: 20),
+                        onPressed: () {
+                          context.read<ChatSessionBloc>().add(
+                            const StartNewChat(),
+                          );
+                        },
+                        tooltip: 'New Chat',
+                      ),
+                    ],
+                  ],
                 ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.add, size: 20),
-                  onPressed: () {
-                    context.read<ChatSessionBloc>().add(const StartNewChat());
-                  },
-                  tooltip: 'New Chat',
-                ),
-              ],
-            ),
+              );
+            },
           ),
           const Divider(height: 1),
           Expanded(
@@ -69,7 +140,21 @@ class ChatHistorySidebar extends StatelessWidget {
                     itemCount: state.chats.length,
                     itemBuilder: (context, index) {
                       final chat = state.chats[index];
+                      final isSelected = state.selectedChatIds.contains(
+                        chat.chatId,
+                      );
+
                       return ListTile(
+                        leading: state.isSelectionMode
+                            ? Checkbox(
+                                value: isSelected,
+                                onChanged: (value) {
+                                  context.read<ChatHistoryBloc>().add(
+                                    ToggleChatSelection(chat.chatId),
+                                  );
+                                },
+                              )
+                            : null,
                         title: Text(
                           chat.title,
                           maxLines: 1,
@@ -79,41 +164,60 @@ class ChatHistorySidebar extends StatelessWidget {
                           '${chat.messages.length} messages',
                           style: const TextStyle(fontSize: 12),
                         ),
+                        selected: isSelected,
                         onTap: () {
-                          context.read<ChatSessionBloc>().add(
-                            LoadChat(chat.chatId),
-                          );
-                        },
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, size: 18),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (dialogContext) => AlertDialog(
-                                title: const Text('Delete Chat'),
-                                content: Text(
-                                  'Are you sure you want to delete "${chat.title}"?',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(dialogContext).pop(),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      context.read<ChatHistoryBloc>().add(
-                                        DeleteChatEvent(chat.chatId),
-                                      );
-                                      Navigator.of(dialogContext).pop();
-                                    },
-                                    child: const Text('Delete'),
-                                  ),
-                                ],
-                              ),
+                          if (state.isSelectionMode) {
+                            context.read<ChatHistoryBloc>().add(
+                              ToggleChatSelection(chat.chatId),
                             );
-                          },
-                        ),
+                          } else {
+                            context.read<ChatSessionBloc>().add(
+                              LoadChat(chat.chatId),
+                            );
+                          }
+                        },
+                        onLongPress: () {
+                          if (!state.isSelectionMode) {
+                            context.read<ChatHistoryBloc>().add(
+                              const ToggleSelectionMode(),
+                            );
+                            context.read<ChatHistoryBloc>().add(
+                              ToggleChatSelection(chat.chatId),
+                            );
+                          }
+                        },
+                        trailing: !state.isSelectionMode
+                            ? IconButton(
+                                icon: const Icon(Icons.delete, size: 18),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (dialogContext) => AlertDialog(
+                                      title: const Text('Delete Chat'),
+                                      content: Text(
+                                        'Are you sure you want to delete "${chat.title}"?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(dialogContext).pop(),
+                                          child: const Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            context.read<ChatHistoryBloc>().add(
+                                              DeleteChatEvent(chat.chatId),
+                                            );
+                                            Navigator.of(dialogContext).pop();
+                                          },
+                                          child: const Text('Delete'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              )
+                            : null,
                       );
                     },
                   );

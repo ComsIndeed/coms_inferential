@@ -158,6 +158,18 @@ class ChatHistoryService {
     await db.delete('messages', where: 'chatId = ?', whereArgs: [chatId]);
   }
 
+  Future<void> deleteMultipleChats(List<String> chatIds) async {
+    if (chatIds.isEmpty) return;
+
+    final db = await _dbHelper.database;
+    await db.transaction((txn) async {
+      for (final chatId in chatIds) {
+        await txn.delete('chats', where: 'chatId = ?', whereArgs: [chatId]);
+        await txn.delete('messages', where: 'chatId = ?', whereArgs: [chatId]);
+      }
+    });
+  }
+
   void clearHistory() async {
     final db = await _dbHelper.database;
     await db.delete('messages');

@@ -32,3 +32,24 @@ class DeleteChatEvent extends ChatHistoryEvent {
 class ClearAllChats extends ChatHistoryEvent {
   const ClearAllChats();
 }
+
+class ToggleSelectionMode extends ChatHistoryEvent {
+  const ToggleSelectionMode();
+}
+
+class ToggleChatSelection extends ChatHistoryEvent {
+  final String chatId;
+
+  const ToggleChatSelection(this.chatId);
+
+  @override
+  List<Object?> get props => [chatId];
+}
+
+class DeleteSelectedChats extends ChatHistoryEvent {
+  const DeleteSelectedChats();
+}
+
+class ClearSelection extends ChatHistoryEvent {
+  const ClearSelection();
+}
