@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:coms_inferential/blocs/chat_session_bloc/chat_session_bloc.dart';
 import 'package:coms_inferential/blocs/chat_session_bloc/chat_session_event.dart';
 import 'package:coms_inferential/blocs/chat_session_bloc/chat_session_state.dart';
-import 'package:coms_inferential/widgets/model_selector.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -185,7 +184,6 @@ class _ChatInputState extends State<ChatInput> {
                           icon: const Icon(Icons.attach_file),
                           tooltip: 'Attach files',
                         ),
-                        const ModelSelector(),
                         const SizedBox(width: 8),
                         Expanded(
                           child: TextField(
